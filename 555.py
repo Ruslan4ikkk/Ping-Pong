@@ -6,7 +6,6 @@ display.set_caption('Пинг Понг')
 background = transform.scale(image.load('mat.jpg'),(700,500))
 x = 65
 y = 65
-
 class GameSprite(sprite.Sprite):
     def __init__(self, player_image, player_x, player_y, player_speed,x,y):
         super().__init__()
@@ -23,82 +22,55 @@ class Player(GameSprite):
         keys_pressed = key.get_pressed()
         if keys_pressed[K_w] and self.rect.y > 5:
             self.rect.y -= self.speed
-        if keys_pressed[K_d] and self.rect.y < 550:
+        if keys_pressed[K_s] and self.rect.y < 550:
             self.rect.y += self.speed
+    def update1(self):
+        keys_pressed = key.get_pressed()
         if keys_pressed[K_UP] and self.rect.y > 5:
             self.rect.y -= self.speed
-        if keys_pressed[K_DOWN] and self.rect.y < 650:
+        if keys_pressed[K_DOWN] and self.rect.y < 550:
             self.rect.y += self.speed
-puly = sprite.Group()
 
-monsters = sprite.Group()
-
-asteroids = sprite.Group()
-
-#for i in range(5):     
     
-    #vrag = Enemy("ufo.png", randint(5,640), 0, randint(1,5), 60, 55)
-    #monsters.add(vrag)
-
-#for i in range(3):     
-    #asteroid = Asteroid("asteroid.png", randint(5,640), 0, 2, 60, 55)
-    #asteroids.add(asteroid)
-    
-player = Player("raketka.png", 50, 250, 5, 80, 100)
+player = Player("raketka.png", 25, 250, 5, 80, 100)
 player1 = Player("raketka.png", 600, 250, 5, 80, 100)
+ball = Player('mych.png',250, 250, 5, 80, 80)
 chet1 = 0
 propusk1 = 0
+speed_x = 3
+speed_y = 3
 rel_time = False #Флаг отвечающий за перезарядку
 num_fire = 0
 run = True 
 finish = False
 font.init()
-font = font.Font(None, 36)
-win = font.render('YOU WIN!', True, (255, 215,0))
-lose = font.render('YOU LOSE!', True, (255, 215,0))   
-per = font.render('Перезарядка!', True, (255, 215,0))      
+font = font.Font(None, 36)    
+lose1 = font.render('PLAYER 1 LOSE!', True,(180,0,0))
+lose2 = font.render('PLAYER 2 LOSE!', True,(180,0,0))
 while run:
     for e in event.get():
         if e.type == QUIT:
             run = False
-        elif e.type == KEYDOWN:
-            if e.key == K_SPACE:
-                if num_fire < 5 and rel_time == False:
-                    num_fire += 1
-                    player.fire()
-                elif num_fire >= 5 and rel_time == False:
-                    rel_time = True
-                    last_time = timer()
     if finish != True:
+        ball.rect.x += speed_x
+        ball.rect.y += speed_y
         window.blit(background,(0,0))
         player.reset()
         player1.reset()
-        monsters.draw(window)
         player.update()
-        player1.update()
-        monsters.update()
-        asteroids.update()
-        asteroids.draw(window)
-        puly.draw(window)
-        puly.update()
-    sprites_list = sprite.groupcollide(monsters, puly, True, True)
-    for c in sprites_list:
-        chet1 += 1
-        vrag = Enemy("ufo.png", randint(5,640), 0, randint(1,5), 60, 55)
-        monsters.add(vrag)   
-    if chet1 > 5:
-        finish = True
-        window.blit(win,(200,200))
-    if propusk1 > 80  or sprite.spritecollide(player, monsters, False) or sprite.spritecollide(player, asteroids, False):
-        finish = True
-        window.blit(lose,(200,200))    
+        player1.update1() 
+        ball.update()
+        ball.reset()
 
-    if rel_time == True:
-        new_time = timer()
-        if new_time - last_time <3:
-            window.blit(per,(100,100))
-        else:
-            num_fire = 0
-            rel_time = False
-            
+        if ball.rect.y > 500 - 80 or ball.rect.y < 0:
+            speed_y *= -1
+        if sprite.collide_rect(player,ball) or sprite.collide_rect(player1,ball):
+            speed_x *= -1
+        
+        if ball.rect.x < 0:
+            finish = True
+            window.blit(lose1, (200,200))
+        if ball.rect.x > 700:
+            finish = True
+            window.blit(lose2, (200,200))
     display.update()
